@@ -2345,9 +2345,13 @@ int smblib_get_prop_batt_status(struct smb_charger *chg,
 		break;
 	case TERMINATE_CHARGE:
 	case INHIBIT_CHARGE:
+<<<<<<< HEAD
 		if (POWER_SUPPLY_HEALTH_WARM == pval.intval
 			|| POWER_SUPPLY_HEALTH_OVERHEAT == pval.intval
 		    ||((batt_capa.intval <= 99) && usb_online))
+=======
+		if ((batt_capa.intval <= 99) && usb_online)
+>>>>>>> 9278b484477c ([M700][charging][HTH-102713]when capacity lower than 100%, could not view)
 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
 		else
 			val->intval = POWER_SUPPLY_STATUS_FULL;
