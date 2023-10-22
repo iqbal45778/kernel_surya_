@@ -1,5 +1,5 @@
 /* Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
- *
+ * Copyright (C) 2020 XiaoMi, Inc.
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
  * only version 2 as published by the Free Software Foundation.
@@ -34,7 +34,7 @@
 
 /* Timeout values in usec */
 #define CAM_IFE_CSID_TIMEOUT_SLEEP_US                  1000
-#define CAM_IFE_CSID_TIMEOUT_ALL_US                    100000
+#define CAM_IFE_CSID_TIMEOUT_ALL_US                    500000
 
 /*
  * Constant Factors needed to change QTimer ticks to nanoseconds
@@ -2575,7 +2575,7 @@ static int cam_ife_csid_get_time_stamp(
 		CAM_IFE_CSID_QTIMER_DIV_FACTOR);
 
 	if (!csid_hw->prev_boot_timestamp) {
-		get_monotonic_boottime64(&ts);
+		ktime_get_ts64(&ts);
 		time_stamp->boot_timestamp =
 			(uint64_t)((ts.tv_sec * 1000000000) +
 			ts.tv_nsec);

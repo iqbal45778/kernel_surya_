@@ -46,6 +46,8 @@ static const struct snd_pcm_hardware no_host_hardware = {
 				  SNDRV_PCM_INFO_PAUSE |
 				  SNDRV_PCM_INFO_RESUME,
 	.formats		= SNDRV_PCM_FMTBIT_S16_LE |
+				  SNDRV_PCM_FMTBIT_S24_LE |
+				  SNDRV_PCM_FMTBIT_S24_3LE |
 				  SNDRV_PCM_FMTBIT_S32_LE,
 	.period_bytes_min	= PAGE_SIZE >> 2,
 	.period_bytes_max	= PAGE_SIZE >> 1,
@@ -73,8 +75,8 @@ static bool snd_soc_dai_stream_valid(struct snd_soc_dai *dai, int stream)
 	else
 		codec_stream = &dai->driver->capture;
 
-	/* If the codec specifies any channels at all, it supports the stream */
-	return codec_stream->channels_min;
+	/* If the codec specifies any rate at all, it supports the stream. */
+	return codec_stream->rates;
 }
 
 /**
