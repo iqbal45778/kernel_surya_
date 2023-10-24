@@ -291,28 +291,6 @@ static void dsi_bridge_disp_param_set(struct drm_bridge *bridge, int cmd)
 	SDE_ATRACE_END("panel_disp_param_send");
 }
 
-int panel_disp_param_send(struct dsi_display *display, int cmd);
-static void dsi_bridge_disp_param_set(struct drm_bridge *bridge, int cmd)
-{
-	int rc = 0;
-	struct dsi_bridge *c_bridge;
-
-	if (!bridge) {
-		pr_err("Invalid params\n");
-		return;
-	}
-
-	c_bridge = to_dsi_bridge(bridge);
-
-	SDE_ATRACE_BEGIN("panel_disp_param_send");
-	rc = panel_disp_param_send(c_bridge->display, cmd);
-	if (rc) {
-		pr_err("[%d] DSI disp param send failed, rc=%d\n",
-		       c_bridge->id, rc);
-	}
-	SDE_ATRACE_END("panel_disp_param_send");
-}
-
 static void dsi_bridge_enable(struct drm_bridge *bridge)
 {
 	int rc = 0;
