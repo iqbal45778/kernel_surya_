@@ -246,7 +246,7 @@ static void do_input_boost(struct kthread_work *work)
 	schedule_delayed_work(&input_boost_rem, msecs_to_jiffies(input_boost_ms));
 }
 
-void do_input_boost_max()
+void do_input_boost_max(void)
 {
 	unsigned int i, ret;
 	struct cpu_sync *i_sync_info;
