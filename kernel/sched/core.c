@@ -3540,69 +3540,6 @@ static inline void balance_callbacks(struct rq *rq, struct callback_head *head)
 
 #endif
 
-#ifdef CONFIG_SMP
-
-static void do_balance_callbacks(struct rq *rq, struct callback_head *head)
-{
-	void (*func)(struct rq *rq);
-	struct callback_head *next;
-
-	lockdep_assert_held(&rq->lock);
-
-	while (head) {
-		func = (void (*)(struct rq *))head->func;
-		next = head->next;
-		head->next = NULL;
-		head = next;
-
-		func(rq);
-	}
-}
-
-static inline struct callback_head *splice_balance_callbacks(struct rq *rq)
-{
-	struct callback_head *head = rq->balance_callback;
-
-	lockdep_assert_held(&rq->lock);
-	if (head)
-		rq->balance_callback = NULL;
-
-	return head;
-}
-
-static void __balance_callbacks(struct rq *rq)
-{
-	do_balance_callbacks(rq, splice_balance_callbacks(rq));
-}
-
-static inline void balance_callbacks(struct rq *rq, struct callback_head *head)
-{
-	unsigned long flags;
-
-	if (unlikely(head)) {
-		raw_spin_lock_irqsave(&rq->lock, flags);
-		do_balance_callbacks(rq, head);
-		raw_spin_unlock_irqrestore(&rq->lock, flags);
-	}
-}
-
-#else
-
-static inline void __balance_callbacks(struct rq *rq)
-{
-}
-
-static inline struct callback_head *splice_balance_callbacks(struct rq *rq)
-{
-	return NULL;
-}
-
-static inline void balance_callbacks(struct rq *rq, struct callback_head *head)
-{
-}
-
-#endif
-
 /**
  * prepare_task_switch - prepare to switch tasks
  * @rq: the runqueue preparing to switch
