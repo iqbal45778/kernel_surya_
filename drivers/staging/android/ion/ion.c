@@ -493,7 +493,6 @@ struct dma_buf *ion_alloc_dmabuf(size_t len, unsigned int heap_id_mask,
 
 	return dmabuf;
 }
-EXPORT_SYMBOL(ion_alloc);
 
 static int ion_alloc_fd(struct ion_allocation_data *a)
 {
