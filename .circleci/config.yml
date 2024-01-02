@@ -7,7 +7,7 @@ jobs:
       - run:
           no_output_timeout: 50m
           command: |
-           git clone https://gitlab.com/kernelsurya2/android_kernel_qcom_sm8150-b 13 kernel 
+           git clone https://gitlab.com/kernelsurya2/android_kernel_qcom_sm8150 -b 13 kernel 
            cd kernel
            git submodule update --init --remote KernelSU
            git clone https://github.com/PREDATOR-project/myscripts.git -b master
