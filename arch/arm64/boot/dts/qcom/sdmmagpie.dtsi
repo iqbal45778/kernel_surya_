@@ -3459,4 +3459,8 @@
 	qcom,clock-freq-threshold = <533000000>;
 };
 
+&ufshc_mem {
+        spm-level = <3>;
+};
+
 #include "sdmmagpie-npu.dtsi"
