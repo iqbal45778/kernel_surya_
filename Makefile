@@ -718,6 +718,10 @@ ARCH_CFLAGS :=
 include arch/$(SRCARCH)/Makefile
 
 ifeq ($(cc-name),clang)
+#Enable MLGO for register allocation.
+KBUILD_CFLAGS += -mllvm -regalloc-enable-advisor=release
+#Enable hot cold split optimization
+KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
 KBUILD_CFLAGS += -mcpu=cortex-a76 -mtune=cortex-a76
 else ifeq ($(cc-name),gcc)
 KBUILD_CFLAGS += -mtune=cortex-a76.cortex-a55 -march=armv8-a
