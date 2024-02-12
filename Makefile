@@ -724,7 +724,7 @@ ifeq ($(cc-name),clang)
 KBUILD_CFLAGS += -mllvm -regalloc-enable-advisor=release
 #Enable hot cold split optimization
 KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
-KBUILD_CFLAGS += -march=armv8.a+lse+fp16+dotprod -mcpu=cortex-a76+crypto+crc -mtune=cortex-a76
+KBUILD_CFLAGS += -mcpu=cortex-a76 -mtune=cortex-a76
 else ifeq ($(cc-name),gcc)
 KBUILD_CFLAGS += -mtune=cortex-a76.cortex-a55 -march=armv8-a
 endif
