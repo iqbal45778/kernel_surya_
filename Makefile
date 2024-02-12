@@ -541,7 +541,9 @@ KBUILD_CFLAGS	+= $(CLANG_FLAGS)
 KBUILD_AFLAGS	+= $(CLANG_FLAGS)
 export CLANG_FLAGS
 ifeq ($(ld-name),lld)
+KBUILD_LDFLAGS  += -mllvm -mcpu=cortex-a76
 KBUILD_CFLAGS += -fuse-ld=lld
+LDFLAGS += -mllvm -regalloc-enable-advisor=release
 endif
 KBUILD_CPPFLAGS += -Qunused-arguments
 endif
