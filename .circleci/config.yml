@@ -12,8 +12,10 @@ jobs:
            git submodule update --init --remote KernelSU
            git clone https://github.com/PREDATOR-project/myscripts.git -b master
            chmod +x myscripts/clang-setup.sh
+           chmod +x myscripts/surya.sh
            chmod +x myscripts/surya_ksu.sh
            source ./myscripts/clang-setup.sh
+           ./myscripts/surya.sh
            ./myscripts/surya_ksu.sh
 workflows:
   version: 2.1
