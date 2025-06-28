@@ -195,5 +195,3 @@ obj-$(CONFIG_HALLS)		+= halls/
 # GNSS driver
 obj-$(CONFIG_GNSS_SIRF)		+= gnsssirf/
 obj-$(CONFIG_GNSS)		+= gnss/
-# KernelSU
-obj-$(CONFIG_KSU)		+= kernelsu/

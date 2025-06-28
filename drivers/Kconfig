@@ -227,8 +227,6 @@ source "drivers/sensors/Kconfig"
 
 source "drivers/esoc/Kconfig"
 
-source "drivers/kernelsu/Kconfig"
-
 source "drivers/energy_model/Kconfig"
 
 source "drivers/halls/Kconfig"

@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm64 4.14.316 Kernel Configuration
+# Linux/arm64 4.14.340 Kernel Configuration
 #
 CONFIG_ARM64=y
 # CONFIG_CC_WERROR is not set
@@ -66,7 +66,7 @@ CONFIG_THREAD_INFO_IN_TASK=y
 CONFIG_INIT_ENV_ARG_LIMIT=32
 CONFIG_CROSS_COMPILE=""
 # CONFIG_COMPILE_TEST is not set
-CONFIG_LOCALVERSION="-perf"
+CONFIG_LOCALVERSION="-perf-qgki"
 # CONFIG_LOCALVERSION_AUTO is not set
  CONFIG_DEFAULT_HOSTNAME="(none)"
 CONFIG_SWAP=y
@@ -5565,7 +5565,7 @@ CONFIG_NLS_ISO8859_1=y
 # CONFIG_NLS_MAC_TURKISH is not set
 CONFIG_NLS_UTF8=y
 # CONFIG_DLM is not set
-# CONFIG_UNICODE is not set
+CONFIG_UNICODE=y
 # CONFIG_FILE_TABLE_DEBUG is not set
 # CONFIG_VIRTUALIZATION is not set
 
