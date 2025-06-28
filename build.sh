@@ -73,9 +73,6 @@ if ! [ -d "${GCC_32_DIR}" ]; then
     git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git "${GCC_32_DIR}" || exit 1
 fi
 
-# Clang is annoying
-PATH="${PWD}/clang/bin:${PATH}"
-
 # Set date and time
 DATE=$(TZ=Asia/Jakarta date)
 
@@ -96,13 +93,12 @@ setversioning() {
 
 # Send to channel
 tg_channelcast() {
-    for POST in "$@"; do
-        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
-            -d chat_id="${TELE_CHANNEL}" \
-            -d "disable_web_page_preview=true" \
-            -d "parse_mode=HTML" \
-            -d text="${POST}"
-    done
+    "${TELEGRAM}" -c "${TELE_CHANNEL}" -H \
+    "$(2
+		for POST in "${@}"; do
+			echo "${POST}"
+		done
+    )"
 }
 
 # Make the kernel
@@ -125,8 +121,8 @@ makekernel() {
         STRIP=llvm-strip \
         OBJCOPY=llvm-objcopy \
         OBJDUMP=llvm-objdump \
-        CROSS_COMPILE="${PWD}/gcc/bin/aarch64-none-linux-gnu-" \
-        CROSS_COMPILE_ARM32="${PWD}/gcc32/bin/arm-none-linux-gnueabihf-" \
+        CROSS_COMPILE="${GCC_64_DIR}/bin/aarch64-none-linux-gnu-" \
+        CROSS_COMPILE_ARM32="${GCC_32_DIR}/bin/arm-none-linux-gnueabihf-" \
         |& tee build.log
 
     # Check if compilation is done successfully.
@@ -167,14 +163,6 @@ shipkernel() {
 }
 
 # Ship China firmware builds
-setksu() {
-    export KSU=KSU
-    # Pick DSP change
-    sed -i 's/CONFIG_KSU=n/CONFIG_KSU=y/g' arch/arm64/configs/${DEFCONFIG}
-    echo -e "KSU ready"
-}
-
-# Ship China firmware builds
 clearout() {
     # Pick DSP change
     rm -rf out
@@ -203,11 +191,6 @@ tg_channelcast "Docker OS: <code>$DISTRO</code>" \
         "Host Core Count: <code>${PROCS} core(s)</code>" \
 	"Commit point: <code>${COMMIT_POINT}</code>"
 START=$(date +"%s")
-makekernel || exit 1
-shipkernel
-clearout
-setksu
-setver2
 makekernel || exit 1
 shipkernel
 
