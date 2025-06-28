@@ -14,7 +14,6 @@ jobs:
            git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc
            git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
            chmod +x myscripts/surya_ksu.sh
-           source ./myscripts/clang-setup.sh
            ./myscripts/surya_ksu.sh
 workflows:
   version: 2.1
