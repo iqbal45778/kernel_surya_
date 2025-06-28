@@ -43,10 +43,6 @@ DISTRO=$(source /etc/os-release && echo ${NAME})
 export IMG_DTB=${OUTDIR}/arch/arm64/boot/Image.gz-dtb
 export DTB_IMG=${OUTDIR}/arch/arm64/boot/dtb.img
 export DTBO_IMG=${OUTDIR}/arch/arm64/boot/dtbo.img
-export KBUILD_BUILD_USER=mahiroo
-export KBUILD_BUILD_HOST=android-build
-export CLANG_PATH=${PWD}/clang
-export PATH=${CLANG_PATH}/bin:${PATH}
 export ARCH=arm64
 export DATE=$(TZ=Asia/Jakarta date)
 # Kernel groups
@@ -100,29 +96,32 @@ tg_channelcast() {
 
 # Make the kernel
 makekernel() {
-    # Clean any old AnyKernel
     rm -rf ${ANYKERNEL}
     git clone https://github.com/rinnsakaguchi/AnyKernel3.git -b FSociety anykernel3
-
-    # Regenerate defconfig
     rm -rf out
     mkdir -p out
+    export PATH="${PWD}/clang/bin:${PWD}/gcc/bin:${PWD}/gcc32/bin:$PATH"
+    export KBUILD_BUILD_USER=Mahiroo
+    export KBUILD_BUILD_HOST=HiraTeam
+    export KBUILD_COMPILER_STRING="${PWD}/clang"
     make O=out ARCH=arm64 ${DEFCONFIG}
 
-    # Start actual build
+    # Start build
     make -j$(nproc --all) \
-        O=out \
-        CC="${ccache_} clang" \
-        AS=llvm-as \
-        LD=ld.lld \
-        AR=llvm-ar \
-        NM=llvm-nm \
-        STRIP=llvm-strip \
-        OBJCOPY=llvm-objcopy \
-        OBJDUMP=llvm-objdump \
-        CROSS_COMPILE="${PWD}/gcc/bin/aarch64-linux-android-" \
-        CROSS_COMPILE_ARM32="${PWD}/gcc32/bin/arm-linux-androideabi-" \
-        |& tee build.log
+		O=out \
+		ARCH=arm64 \
+		CC="${ccache_} clang" \
+		AS=llvm-as \
+		LD=ld.lld \
+		AR=llvm-ar \
+		NM=llvm-nm \
+		STRIP=llvm-strip \
+		OBJCOPY=llvm-objcopy \
+		OBJDUMP=llvm-objdump \
+		CLANG_TRIPLE=aarch64-linux-gnu- \
+		CROSS_COMPILE="${PWD}/gcc/bin/aarch64-linux-android-" \
+		CROSS_COMPILE_ARM32="${PWD}/gcc32/bin/arm-linux-androideabi-" \
+		|& tee build.log
 
     # Check if compilation is done successfully.
     if ! [ -f "${IMG_DTB}" ]; then
@@ -159,14 +158,6 @@ shipkernel() {
 
     # Go back for any extra builds
     cd ..
-}
-
-#Setver 2 for ksu
-setver2() {
-    KERNELNAME="${KERNEL}-${KERNELRELEASE}-KSU-${ZIP_DATE}"
-    export KERNELTYPE KERNELNAME
-    export TEMPZIPNAME="${KERNELNAME}-unsigned.zip"
-    export ZIPNAME="${KERNELNAME}.zip"
 }
 
 ## Start the kernel buildflow ##
