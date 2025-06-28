@@ -52,15 +52,13 @@ TELE_CHANNEL=-1002354747626
 KERNELRELEASE=surya
 
 # Fetch Clang
-curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman" && \
-chmod +x antman && \
-./antman -S && \
-./antman --patch=glibc && \
-mv neutron-clang clang
-git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 gcc
-git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 gcc32
+clang() {
+mkdir clang && curl https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r536225.tar.gz -RLO && tar -C clang/ -xf clang-r536225.tar.gz
+git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
+git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
 export CLANG_DIR=${PWD}/clang
 export COMPILER_STRING=$(${CLANG_DIR}/bin/clang --version | head -n 1)
+}
 
 # Set date and time
 DATE=$(TZ=Asia/Jakarta date)
@@ -161,6 +159,7 @@ shipkernel() {
 }
 
 ## Start the kernel buildflow ##
+clang
 setversioning
 tg_channelcast "Docker OS: <code>$DISTRO</code>" \
         "Compiler: <code>${COMPILER_STRING}</code>" \
