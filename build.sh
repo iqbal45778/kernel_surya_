@@ -11,7 +11,6 @@ export TELEGRAM_TOKEN=7485743487:AAEKPw9ubSKZKit9BDHfNJSTWcWax4STUZs
 export ANYKERNEL=$(pwd)/anykernel3
 export OUTDIR=${PWD}/out
 export ccache_="" #ccache
-export COMPILER_TYPE=clang
 DEVICE="surya"
 export DEVICE
 
@@ -53,9 +52,9 @@ KERNELRELEASE=surya
 
 # Fetch Clang
 clang() {
-mkdir clang && curl https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r536225.tar.gz -RLO && tar -C clang/ -xf clang-r536225.tar.gz
-git clone https://github.com/greenforce-project/gcc-arm64 -b main --depth=1 gcc64
-git clone https://github.com/greenforce-project/gcc-arm -b main --depth=1 gcc32
+mkdir clang && cd clang && curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman" && chmod a+x antman && ./antman -S && ./antman --patch=glibc && cd .. && ls
+git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 gcc64
+git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 gcc32
 export CLANG_DIR=${PWD}/clang
 export COMPILER_STRING=$(${CLANG_DIR}/bin/clang --version | head -n 1)
 }
@@ -70,7 +69,7 @@ ZIP_DATE=$(TZ=Asia/Jakarta date +"%Y%m%d-%H%M")
 setversioning() {
 
 # For staging branch
-            KERNELNAME="${KERNEL}-${KERNELRELEASE}-KSU-${ZIP_DATE}"
+     KERNELNAME="${KERNEL}-${KERNELRELEASE}-KSU-${ZIP_DATE}"
 	    
     # Export our new localversion and zipnames
     export KERNELTYPE KERNELNAME
@@ -96,30 +95,14 @@ tg_channelcast() {
 makekernel() {
     rm -rf ${ANYKERNEL}
     git clone https://github.com/rinnsakaguchi/AnyKernel3.git -b FSociety anykernel3
-    rm -rf out
-    mkdir -p out
-    export PATH="${PWD}/clang/bin:${PWD}/gcc/bin:${PWD}/gcc32/bin:$PATH"
+    export ARCH=arm64
+    export PATH="${PWD}/clang/bin:${PWD}gcc64/bin:${PWD}gcc32/bin:$PATH"  
     export KBUILD_BUILD_USER=Mahiroo
     export KBUILD_BUILD_HOST=HiraTeam
     export KBUILD_COMPILER_STRING="${PWD}/clang"
-    make O=out ARCH=arm64 ${DEFCONFIG}
-
-    # Start build
-    make -j$(nproc --all) \
-		O=out \
-		ARCH=arm64 \
-		CC="${ccache_} clang" \
-		AS=llvm-as \
-		LD=ld.lld \
-		AR=llvm-ar \
-		NM=llvm-nm \
-		STRIP=llvm-strip \
-		OBJCOPY=llvm-objcopy \
-		OBJDUMP=llvm-objdump \
-		CLANG_TRIPLE=aarch64-linux-gnu- \
-		CROSS_COMPILE="${PWD}/gcc/bin/aarch64-linux-android-" \
-		CROSS_COMPILE_ARM32="${PWD}/gcc32/bin/arm-linux-androideabi-" \
-		|& tee build.log
+    make O=out ARCH=arm64 surya_defconfig  
+    make -j$(nproc --all) O=out \ ARCH=arm64 \ LLVM=1 \ LLVM_IAS=1 \ CLANG_TRIPLE=aarch64-linux-gnu- \ CROSS_COMPILE=aarch64-linux-gnu- \ CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \ CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+    |& tee build.log
 
     # Check if compilation is done successfully.
     if ! [ -f "${IMG_DTB}" ]; then
