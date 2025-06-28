@@ -123,7 +123,7 @@ clang
 setversioning
 tg_channelcast "🚀 <b>Starting Kernel Build</b>" \
     "OS: <code>${DISTRO}</code>" \
-    "Compiler: <code>${COMPILER_STRING}</code>" \
+    "Compiler: <code>Neutron Clang 19</code>" \
     "Device: <code>Poco X3 NFC (${DEVICE})</code>" \
     "Linux Version: <code>$(make kernelversion)</code>" \
     "Branch: <code>${PARSE_BRANCH}</code>" \
