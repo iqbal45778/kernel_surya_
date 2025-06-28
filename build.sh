@@ -9,11 +9,7 @@
 # Needed exports
 export TELEGRAM_TOKEN=7485743487:AAEKPw9ubSKZKit9BDHfNJSTWcWax4STUZs
 export ANYKERNEL=$(pwd)/anykernel3
-export CLANG_DIR=${PWD}/clang
-export GCC_64_DIR=${PWD}/gcc
-export GCC_32_DIR=${PWD}/gcc32
 export OUTDIR=${PWD}/out
-export COMPILER_STRING=$(${CLANG_DIR}/bin/clang --version | head -n 1)
 export ccache_="" #ccache
 export COMPILER_TYPE=clang
 DEVICE="surya"
@@ -59,19 +55,16 @@ TELE_CHANNEL=-1002354747626
 # Kernel revision
 KERNELRELEASE=surya
 
-# Toolchain check
-if ! [ -d "${CLANG_DIR}" ]; then
-    echo "Clang not found! Cloning..."
-    git clone --depth=1 -b clang-21.0 https://gitlab.com/kutemeikito/rastamod69-clang "${CLANG_DIR}" || exit 1
-fi
-if ! [ -d "${GCC_64_DIR}" ]; then
-    echo "GCC 64 not found! Cloning..."
-    git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git "${GCC_64_DIR}" || exit 1
-fi
-if ! [ -d "${GCC_32_DIR}" ]; then
-    echo "GCC 32 not found! Cloning..."
-    git clone --depth=1 -b lineage-19.1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git "${GCC_32_DIR}" || exit 1
-fi
+# Fetch Clang
+curl -LO "https://raw.githubusercontent.com/Neutron-Toolchains/antman/main/antman" && \
+chmod +x antman && \
+./antman -S && \
+./antman --patch=glibc && \
+mv neutron-clang clang
+git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 gcc
+git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 gcc32
+export CLANG_DIR=${PWD}/clang
+export COMPILER_STRING=$(${CLANG_DIR}/bin/clang --version | head -n 1)
 
 # Set date and time
 DATE=$(TZ=Asia/Jakarta date)
@@ -93,12 +86,16 @@ setversioning() {
 
 # Send to channel
 tg_channelcast() {
-    "${TELEGRAM}" -c "${TELE_CHANNEL}" -H \
-    "$(2
-		for POST in "${@}"; do
-			echo "${POST}"
-		done
-    )"
+    local message=""
+    for POST in "$@"; do
+        message+="${POST}"$'\n'
+    done
+
+    curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+        -d chat_id="${TELE_CHANNEL}" \
+        -d "disable_web_page_preview=true" \
+        -d "parse_mode=HTML" \
+        -d "text=${message}"
 }
 
 # Make the kernel
@@ -108,6 +105,8 @@ makekernel() {
     git clone https://github.com/rinnsakaguchi/AnyKernel3.git -b FSociety anykernel3
 
     # Regenerate defconfig
+    rm -rf out
+    mkdir -p out
     make O=out ARCH=arm64 ${DEFCONFIG}
 
     # Start actual build
@@ -121,8 +120,8 @@ makekernel() {
         STRIP=llvm-strip \
         OBJCOPY=llvm-objcopy \
         OBJDUMP=llvm-objdump \
-        CROSS_COMPILE="${GCC_64_DIR}/bin/aarch64-none-linux-gnu-" \
-        CROSS_COMPILE_ARM32="${GCC_32_DIR}/bin/arm-none-linux-gnueabihf-" \
+        CROSS_COMPILE="${PWD}/gcc/bin/aarch64-linux-android-" \
+        CROSS_COMPILE_ARM32="${PWD}/gcc32/bin/arm-linux-androideabi-" \
         |& tee build.log
 
     # Check if compilation is done successfully.
@@ -160,13 +159,6 @@ shipkernel() {
 
     # Go back for any extra builds
     cd ..
-}
-
-# Ship China firmware builds
-clearout() {
-    # Pick DSP change
-    rm -rf out
-    mkdir -p out
 }
 
 #Setver 2 for ksu
